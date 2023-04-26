@@ -95,6 +95,9 @@ databaseChangeLog:
               - column:
                   type: varchar(50)
                   name: authority_name
+              - column:
+                  type: bigint
+                  name: user_id
                   constraints:
                     nullable: false
                     foreignKeyName: fk_authority_user

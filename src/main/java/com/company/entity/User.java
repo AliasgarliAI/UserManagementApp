@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class User {
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,11 +30,9 @@ public class User {
     private LocalDateTime lastLoginDate;
     private LocalDateTime lastLoginDateDisplay;
     private LocalDateTime joinDate;
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "role_id",nullable = false)
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
     private List<Role> roles;
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "authority_id",nullable = false)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "user")
     private List<Authority> authorities;
 
 }

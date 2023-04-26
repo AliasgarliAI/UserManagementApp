@@ -4,18 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.stream;
+
 @RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
     private final User user;
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return stream(this.user.getAuthorities()).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    public List<? extends GrantedAuthority> getAuthorities() {
+        return this.user.getAuthorities()
+                .stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
+                .collect(Collectors.toList());
     }
 
     @Override

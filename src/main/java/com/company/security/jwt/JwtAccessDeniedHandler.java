@@ -12,6 +12,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 import static com.company.constant.SecurityConstants.ACCESS_DENIED_MESSAGE;
 @Component
@@ -24,7 +26,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
                 httpStatus.value(),
                 httpStatus,
                 httpStatus.getReasonPhrase().toUpperCase(),
-                ACCESS_DENIED_MESSAGE);
+                ACCESS_DENIED_MESSAGE,
+                new Date());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(httpStatus.value());

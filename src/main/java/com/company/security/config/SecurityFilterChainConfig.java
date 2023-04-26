@@ -17,7 +17,7 @@ import static com.company.constant.SecurityConstants.*;
 
 @Component
 @EnableWebSecurity
-@EnableGlobalMethodSecurity
+//@EnableGlobalMethodSecurity
 @RequiredArgsConstructor
 public class SecurityFilterChainConfig {
 

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql
+    container_name: db_user_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - spring-boot-mysql-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=user_management
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=123456789
+    healthcheck:
+      test: ["CMD-SHELL","mysqladmin ping -h 127.0.0.1 -u root -p${MYSQL_ROOT_PASSWORD}"]
+      interval: 50s
+      timeout: 15s
+      retries: 5
+  app:
+    build: .
+    container_name: app_user_management
+    ports:
+      - "8083:8083"
+    networks:
+      - spring-boot-mysql-network
+    depends_on:
+      db:
+        condition: service_healthy
+networks:
+  spring-boot-mysql-network:
+    driver: bridge
+volumes:
+  db_data:

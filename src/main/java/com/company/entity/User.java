@@ -4,17 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class User implements Serializable {
+public class User implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,9 +32,7 @@ public class User implements Serializable {
     private LocalDateTime lastLoginDate;
     private LocalDateTime lastLoginDateDisplay;
     private LocalDateTime joinDate;
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
-    private List<Role> roles;
-    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,mappedBy = "user")
-    private List<Authority> authorities;
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_role",joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 }

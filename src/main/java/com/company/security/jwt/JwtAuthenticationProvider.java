@@ -1,16 +1,19 @@
 package com.company.security.jwt;
 
-import com.company.entity.UserPrincipal;
+import com.company.entity.UserDetailsImpl;
+import com.company.mapper.UserMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,18 +26,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import static com.company.constant.SecurityConstants.*;
 
-@Service
-public class JwtAuthenticationService {
+@Component
+public class JwtAuthenticationProvider {
     @Value("${jwt.secret-key}")
     private String key;
 
-
-    public String generateToken(Map<String, Claims> extraClaims, UserPrincipal userPrincipal) {
+    public String generateToken(Map<String, Claims> extraClaims, UserDetailsImpl userPrincipal) {
         return Jwts.builder()
                 .setClaims(extraClaims)
-                .setClaims(Map.of(AUTHORITIES, userPrincipal.getAuthorities()))
-                .setSubject(userPrincipal.getUsername())
+                .setClaims(Map.of(ROLES,userPrincipal.getRoles()))
                 .setAudience(TOKEN_SOURCE)
+                .setIssuer(TOKEN_ISSUER)
+                .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_TIME))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS512)
@@ -46,7 +49,7 @@ public class JwtAuthenticationService {
         return authentication;
     }
 
-    public String generateToken(UserPrincipal userPrincipal) {
+    public String generateToken(UserDetailsImpl userPrincipal) {
         return generateToken(new HashMap<>(), userPrincipal);
     }
     @SuppressWarnings(value = "unchecked")
@@ -54,9 +57,9 @@ public class JwtAuthenticationService {
         List<String> authorities = (List<String>) extractAllClaims(token).get(AUTHORITIES);
         return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
-    public boolean isTokenValid(String token, UserPrincipal userPrincipal){
+    public boolean isTokenValid(String token, UserDetailsImpl userDetailsImpl){
         String userName = extractUserName(token);
-        return userPrincipal.getUsername().equals(userName) && !isTokenExpired(token);
+        return userDetailsImpl.getUsername().equals(userName) && !isTokenExpired(token);
     }
     public Date extractExpirationDate(String token) {
         return extractClaim(token, Claims::getExpiration);

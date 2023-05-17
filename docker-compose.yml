@@ -24,7 +24,7 @@ services:
     build: .
     container_name: app_user_management
     ports:
-      - "8083:8083"
+      - "8080:8080"
     networks:
       - spring-boot-mysql-network
     depends_on:

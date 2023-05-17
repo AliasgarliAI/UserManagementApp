@@ -8,9 +8,11 @@ public class SecurityConstants {
     public static final String TOKEN_ISSUER = "Alakbar Aliasgarli";
     public static final String TOKEN_SOURCE = "User Management Portal";
     public static final String AUTHORITIES = "authorities";
+    public static final String ROLES = "roles";
     public static final String FORBIDDEN_MESSAGE = "You need to log in to access this page";
     public static final String ACCESS_DENIED_MESSAGE = "You do not have permission to access this page";
     public static final String OPTIONS_HTTP_METHOD = "OPTIONS";
-    public static final String[] PUBLIC_URLS = { "/user/login", "/user/register", "/user/resetpassword/**", "/user/image/**" };
-   // public static final String[] PUBLIC_URLS = { "**" };
+    public static final String[] PUBLIC_URLS = {"/login", "/register", "/resetpassword/**", "/user/image/**", "/swagger-ui/**"};
+    //public static final String[] PUBLIC_URLS = { "**" };
+    public static final String[] SWAGGER_PUBLIC_URLS = {"/swagger-ui/**","/v3/api-docs/**"};
 }

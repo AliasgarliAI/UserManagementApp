@@ -1,9 +1,10 @@
 package com.company.security.jwt;
 
 
-import com.company.entity.UserPrincipal;
+import com.company.entity.UserDetailsImpl;
 import com.company.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,11 @@ import java.io.IOException;
 import static com.company.constant.SecurityConstants.*;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtAuthenticationService jwtAuthenticationService;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final UserServiceImpl userService;
 
     @Override
@@ -32,19 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (request.getMethod().equalsIgnoreCase(OPTIONS_HTTP_METHOD)) {
             response.setStatus(HttpStatus.OK.value());
         } else {
-
             String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_PREFIX)) {
                 filterChain.doFilter(request, response);
                 return;
             }
             String token = authorizationHeader.substring(TOKEN_PREFIX.length());
-            String username = jwtAuthenticationService.extractUserName(token);
-            if (!ObjectUtils.isNotEmpty(username)) {
 
-                UserPrincipal userPrincipal = userService.loadUserByUsername(username);
-                if (jwtAuthenticationService.isTokenValid(token, userPrincipal) && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    Authentication authentication = jwtAuthenticationService.getAuthentication(username, userPrincipal.getAuthorities(), request);
+            String username = jwtAuthenticationProvider.extractUserName(token);
+            if (ObjectUtils.isNotEmpty(username)) {
+
+                UserDetailsImpl userDetailsImpl = userService.loadUserByUsername(username);
+                if (jwtAuthenticationProvider.isTokenValid(token, userDetailsImpl) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    Authentication authentication = jwtAuthenticationProvider.getAuthentication(username, userDetailsImpl.getAuthorities(), request);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

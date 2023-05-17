@@ -1,12 +1,11 @@
 package com.company.security.config;
 
-import com.company.security.jwt.JwtAccessDeniedHandler;
-import com.company.security.jwt.JwtAuthenticationEntryPoint;
+import com.company.exception.JwtAccessDeniedHandler;
+import com.company.exception.JwtAuthEntryPointHandler;
 import com.company.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,24 +22,26 @@ public class SecurityFilterChainConfig {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAuthEntryPointHandler jwtAuthEntryPointHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf().disable()
-                .cors()
-                .and()
+                .cors().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests().antMatchers(PUBLIC_URLS).permitAll()
+                .and()
+                .authorizeRequests().antMatchers(SWAGGER_PUBLIC_URLS).permitAll()
+                //.antMatchers("/user/all").hasAuthority("READ_USER")
                 .anyRequest().authenticated()
                 .and()
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling().accessDeniedHandler(jwtAccessDeniedHandler)
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .authenticationEntryPoint(jwtAuthEntryPointHandler)
+                .and().httpBasic();
         return httpSecurity.build();
     }
 }

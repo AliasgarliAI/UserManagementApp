@@ -1,4 +1,4 @@
-package com.company.service.impl;
+package com.company.service;
 
 import com.company.dto.RoleDto;
 import com.company.entity.Role;

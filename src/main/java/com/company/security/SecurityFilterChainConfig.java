@@ -1,4 +1,4 @@
-package com.company.security.config;
+package com.company.security;
 
 import com.company.exception.JwtAccessDeniedHandler;
 import com.company.exception.JwtAuthEntryPointHandler;

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230510-01
+      author: aliasgarliai
+      changes:
+        - dropUniqueConstraint:
+            tableName: confirmation_token
+            schemaName: user_management
+            uniqueColumns: user_email
+            constraintName: user_email

@@ -1,0 +1,37 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230523-01
+      author: aliasgarliai
+      changes:
+        - createTable:
+            tableName: confirmation_token
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_ct
+                    nullable: false
+              - column:
+                  name: token
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: datetime
+              - column:
+                  name: expires_at
+                  type: datetime
+              - column:
+                  name: confirmed_at
+                  type: datetime
+              - column:
+                  name: user_email
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+

@@ -7,6 +7,7 @@ import com.company.exception.domain.EmailNotFoundException;
 import com.company.exception.domain.UserNotFoundException;
 import com.company.mapper.UserMapper;
 import com.company.repository.UserRepository;
+import com.company.service.LoginAttemptService;
 import com.company.service.inter.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
-
+    private final LoginAttemptService loginAttemptService;
 
     @Override
     public List<UserDto> getAllUsers() {
@@ -41,13 +42,13 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     public UserDetailsImpl loadUserByUsername(String userName) throws UsernameNotFoundException {
         User user = userRepository.findByUserName(userName)
-                                 .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
+                .orElseThrow(() -> new UsernameNotFoundException(USERNAME_NOT_FOUND));
 
         if (!ObjectUtils.isNotEmpty(user)) {
             log.info("user not found with this user: {} ", userName);
             throw new UsernameNotFoundException(USERNAME_NOT_FOUND);
         }
-
+        validateLoginAttempt(user);
         user.setLastLoginDate(LocalDateTime.now());
         user.setLastLoginDateDisplay(LocalDateTime.now());
 
@@ -88,9 +89,19 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         User user = userRepository.saveAndFlush(userMapper.dtoToUser(userDto));
         return userMapper.userToDto(user);
     }
+
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    private void validateLoginAttempt(User user) {
+        if (user.isNotLocked()) {
+            if (loginAttemptService.isExceededMaxAttempts(user.getUserName())) {
+                user.setNotLocked(false);
+            }
+        } else {
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUserName());
+        }
+    }
 }
